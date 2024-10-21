@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+
+        #chatbox {
+            width: 400px;
+            height: 500px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-content: center;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message p {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.bot p {
+            background-color: #e2e3e5;
+            color: #333;
+            border-radius: 20px 20px 20px 5px;
+        }
+
+        .message.user p {
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 20px 20px 5px 20px;
+        }
+
+        #chatForm {
+            display: flex;
+            margin-top: auto;
+        }
+
+        #respostaCliente {
+            width: calc(100% - 60px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            outline: none;
+        }
+
+        button {
+            width: 35px;
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #chatbox::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background-color: #f4f4f9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <div id="chatbox">
+        <div class="message bot">
+            <p id="chatbotMessage">Olá! Como posso te ajudar?</p>
+        </div>
+    </div>
+
+    <form id="chatForm">
+        <input type="text" id="respostaCliente" name="respostaCliente" placeholder="Digite sua resposta aqui">
+        <button type="submit">⮞</button>
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#chatForm').on('submit', function (event) {
+            event.preventDefault();  // Impede o recarregamento da página
+
+            var userResponse = $('#respostaCliente').val();
+
+            if (userResponse.trim() !== "") {
+                // Adiciona a mensagem do usuário ao chat
+                $('#chatbox').append('<div class="message user"><p>' + userResponse + '</p></div>');
+
+                // Faz a requisição AJAX para o Flask e obtém a resposta do chatbot
+                $.ajax({
+                    url: '/chatbot',
+                    method: 'POST',
+                    data: {respostaCliente: userResponse},
+                    success: function (data) {
+                        // Adiciona a resposta do chatbot ao chat
+                        $('#chatbox').append('<div class="message bot"><p>' + data.response + '</p></div>');
+
+                        // Rolagem automática para a última mensagem
+                        $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+                    }
+                });
+
+                // Limpa o campo de entrada
+                $('#respostaCliente').val('');
+            }
+        });
+    });
+</script>
+</body>
+</html>
